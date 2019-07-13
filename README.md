@@ -16,7 +16,7 @@ Please be careful. You can get your Authy account suspended very easily by using
 ### authy-export
 This program will enrol itself as an additional device on your Authy account and export all of your TOTP tokens in [Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
 
-To use it:
+**To use it:**
 
 1. Run `authy-export`
 2. The program will prompt you for your phone number country code (e.g. 1 for United States) and your phone number. This is the number that you used to register your Authy account originally.
@@ -24,6 +24,19 @@ To use it:
 4. If the device registration is successful, the program will save its authentication credential (a random value) to `$HOME/authy-go.json` for further uses. **Make sure to delete this file and de-register the device after you're finished.**
 5. If the program is able to fetch your TOTP encrypted database, it will prompt you for your Authy backup password. This is required to decrypt the TOTP secrets for the next step. 
 6. The program will dump all of your TOTP tokens in URI format, which you can use to import to other applications.
+
+**How do you then import it into another app?**
+
+Up to you, depends on the app. If the app uses QR scanning, you can try stick all the dumped URIs into a file (`tokens`) and then scan each QR code from your terminal, e.g.:
+
+```bash
+#!/usr/bin/env bash
+cat tokens | while IFS= read -r line; do
+  clear
+  echo -n "$line" | qrencode -t UTF8
+  read -p $"Press any key to continue" key < /dev/tty
+done
+```
 
 ## LICENSE
 
