@@ -2,11 +2,18 @@ language: go
 go:
 - 1.12.6
 script:
-- CGO_ENABLED=0 go build -o authy-export -ldflags "-s -w" cmd/authy-export/authy-export.go
+- CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o authy-export-linux-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
+- CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o authy-export-darwin-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
+- CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o authy-export-windows-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
 deploy:
   provider: releases
   api_key:
     secure: Q0kkyw7l+4hZV8VqrtGBngIWy1I/4yMcGNwVHsQsk0NoF+5+SuiFdROuOHS8rDz22qRghiV2POI7EUd5KxzMrL2S8yvEDSiCkKGYuMiqcQQwLU2Jd0YGuIZAAVlXUGjyQL0SSGlGOheNUA0ZhMn62AzDug5OW4ovshSUU+XEtmxP/IGd1/5Md3s/sUG9i8MdEvVtCBfsRWKPUtqMTZjk/xpTGf83CNpBMFwdXefdRn1HAPbmtdiYI1muRnda0NKYVSMNmFZRj1JxCGrRoOMv4FVKZgncRicMlgosWgN8Lnm5nX3xRnfIg6JEfM7NynajpmVFjXdoqp7vftHvfK6dI5qYapoJ/xgB7PiYo9y/GDBeiI0vCmnEPi7HJE7IiWSDsBYtQj7Gr4K+c4SaBT1+RoNWadCmR5Os0f9qTqXlsozmcu/2kBa8R2tnF+IMyaeMBnyjnrvpn+3v7wSEVBE7OD8F9kSyf3nm0m80G/rczfxlNyxAtZHTFfIU2C3ma/JnTwf9PzqiyitJlr1jSAXUES0g9Yv8YAQLhz1GZluAkLe2Be+ePL6HiC6p98qPAHJEnjWc6A175bqI0vqdUJwIpkZhlK6tjiCwxueolw/CcyMiZtfIxBHGXIEejymG5XvLwXKse9zdhpb/xWhUZqV1uGhBdTe+4ilqMQBvnG0djz0=
-  file: authy-export
+  file:
+    - authy-export-linux-amd64
+    - authy-export-darwin-amd64
+    - authy-export-windows-amd64
+  skip_cleanup: true
   on:
     repo: alexzorin/authy
+    tags: true
