@@ -7,6 +7,7 @@ import (
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"strings"
 )
 
 // ViaMethod represents the methods available for new device registration
@@ -179,5 +180,5 @@ func (t AuthenticatorToken) Decrypt(passphrase string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(buf), nil
+	return strings.ToUpper(string(buf)), nil
 }
