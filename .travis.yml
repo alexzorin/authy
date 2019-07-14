@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.12.6
+- 1.12.7
 script:
 - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o authy-export-linux-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
 - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o authy-export-darwin-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
