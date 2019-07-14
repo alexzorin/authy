@@ -102,7 +102,8 @@ func decryptToken(encryptedSeedB64, salt, passphrase string) (string, error) {
 
 	out := make([]byte, len(encryptedSeed))
 	cbc.CryptBlocks(out, encryptedSeed)
-	out = out[:16]
+
+	out = out[:len(out)-cbc.BlockSize()]
 
 	return hex.EncodeToString(out), nil
 }
