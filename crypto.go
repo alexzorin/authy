@@ -103,7 +103,11 @@ func decryptToken(encryptedSeedB64, salt, passphrase string) (string, error) {
 	out := make([]byte, len(encryptedSeed))
 	cbc.CryptBlocks(out, encryptedSeed)
 
-	out = out[:len(out)-cbc.BlockSize()]
+	// The padding scheme seems to me that the final block will be padded with
+	// the length of the padding. In the case when the plaintext aligns with
+	// the block size, the final block will be padding-only.
+	paddingLen := int(out[len(out)-1])
+	out = out[:len(out)-paddingLen]
 
 	return hex.EncodeToString(out), nil
 }
