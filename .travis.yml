@@ -4,7 +4,7 @@ go:
 script:
 - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o authy-export-linux-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
 - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o authy-export-darwin-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
-- CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o authy-export-windows-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
+- CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -o authy-export-windows-amd64.exe -ldflags "-s -w" cmd/authy-export/authy-export.go
 deploy:
   provider: releases
   api_key:
@@ -12,7 +12,7 @@ deploy:
   file:
     - authy-export-linux-amd64
     - authy-export-darwin-amd64
-    - authy-export-windows-amd64
+    - authy-export-windows-amd64.exe
   skip_cleanup: true
   on:
     repo: alexzorin/authy
