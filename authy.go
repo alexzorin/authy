@@ -1,6 +1,7 @@
 package authy
 
 import (
+	"bytes"
 	"context"
 	"encoding/hex"
 	"encoding/json"
@@ -8,6 +9,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -66,7 +68,17 @@ func (c Client) doRequest(ctx context.Context, method, url string, body io.Reade
 	}
 	defer resp.Body.Close()
 
-	return json.NewDecoder(resp.Body).Decode(&dest)
+	var r io.Reader = resp.Body
+	if os.Getenv("AUTHY_DEBUG") == "1" {
+		var debugBuf bytes.Buffer
+		r = io.TeeReader(resp.Body, &debugBuf)
+		defer func() {
+			fmt.Fprintf(os.Stderr, "[AUTHY_DEBUG] Sent request to: %s, got response: %s\n",
+				req.URL.String(), debugBuf.String())
+		}()
+	}
+
+	return json.NewDecoder(r).Decode(&dest)
 }
 
 // QueryUser fetches the status of an Authy user account.
