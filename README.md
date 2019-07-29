@@ -25,6 +25,8 @@ This program will enrol itself as an additional device on your Authy account and
 5. If the program is able to fetch your TOTP encrypted database, it will prompt you for your Authy backup password. This is required to decrypt the TOTP secrets for the next step. 
 6. The program will dump all of your TOTP tokens in URI format, which you can use to import to other applications.
 
+If you [notice any missing TOTP tokens](https://github.com/alexzorin/authy/issues/1#issuecomment-516187701), please try toggling "Authenticator Backups" in your Authy settings, to force your backup to be resynchronized.
+
 **How do you then import it into another app?**
 
 Up to you, depends on the app. If the app uses QR scanning, you can try stick all the dumped URIs into a file (`tokens`) and then scan each QR code from your terminal, e.g.:
