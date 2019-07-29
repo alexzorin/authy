@@ -70,7 +70,7 @@ func main() {
 	for _, tok := range tokensResponse.AuthenticatorTokens {
 		decrypted, err := tok.Decrypt(string(pp))
 		if err != nil {
-			log.Printf("Failed to decrypt token %s: %v", tok.OriginalName, err)
+			log.Printf("Failed to decrypt token %s: %v", tok.Description(), err)
 			continue
 		}
 
@@ -80,7 +80,7 @@ func main() {
 		u := url.URL{
 			Scheme:   "otpauth",
 			Host:     "totp",
-			Path:     tok.OriginalName,
+			Path:     tok.Description(),
 			RawQuery: params.Encode(),
 		}
 		fmt.Println(u.String())

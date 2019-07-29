@@ -182,3 +182,15 @@ func (t AuthenticatorToken) Decrypt(passphrase string) (string, error) {
 	}
 	return strings.ToUpper(string(buf)), nil
 }
+
+// Description returns OriginalName if not empty, otherwise Name,
+// otherwise `Token-{UniqueID}`.
+func (t AuthenticatorToken) Description() string {
+	if t.OriginalName != "" {
+		return t.OriginalName
+	}
+	if t.Name != "" {
+		return t.Name
+	}
+	return "Token-" + t.UniqueID
+}
