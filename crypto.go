@@ -112,7 +112,7 @@ func decryptToken(encryptedSeedB64, salt, passphrase string) (string, error) {
 	paddingLen := out[len(out)-1]
 	paddingStart := len(out) - int(paddingLen)
 
-	if paddingLen > aes.BlockSize || paddingStart >= len(out) {
+	if paddingLen > aes.BlockSize || paddingStart >= len(out) || paddingStart <= 0 {
 		return "", errors.New("decryption failed")
 	}
 	cmp := true
