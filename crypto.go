@@ -6,6 +6,7 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha1"
+	"crypto/subtle"
 	"encoding/base32"
 	"encoding/base64"
 	"encoding/binary"
@@ -115,11 +116,12 @@ func decryptToken(encryptedSeedB64, salt, passphrase string) (string, error) {
 	if paddingLen > aes.BlockSize || paddingStart >= len(out) || paddingStart <= 0 {
 		return "", errors.New("decryption failed")
 	}
-	cmp := true
+
+	var cmp byte
 	for _, pad := range out[paddingStart:] {
-		cmp = cmp && pad == paddingLen
+		cmp |= pad ^ paddingLen
 	}
-	if !cmp {
+	if subtle.ConstantTimeByteEq(cmp, 0) != 1 {
 		return "", errors.New("decryption failed")
 	}
 
