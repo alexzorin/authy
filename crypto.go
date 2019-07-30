@@ -10,6 +10,7 @@ import (
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io"
 	"math"
@@ -106,10 +107,23 @@ func decryptToken(encryptedSeedB64, salt, passphrase string) (string, error) {
 	// The padding scheme seems to me that the final block will be padded with
 	// the length of the padding. In the case when the plaintext aligns with
 	// the block size, the final block will be padding-only.
-	paddingLen := int(out[len(out)-1])
-	out = out[:len(out)-paddingLen]
+	// Additionally, since CBC is not authenticated, we need to ensure that the
+	// padding is not just garbage bytes.
+	paddingLen := out[len(out)-1]
+	paddingStart := len(out) - int(paddingLen)
 
-	return hex.EncodeToString(out), nil
+	if paddingLen > aes.BlockSize || paddingStart >= len(out) {
+		return "", errors.New("decryption failed")
+	}
+	cmp := true
+	for _, pad := range out[paddingStart:] {
+		cmp = cmp && pad == paddingLen
+	}
+	if !cmp {
+		return "", errors.New("decryption failed")
+	}
+
+	return hex.EncodeToString(out[:paddingStart]), nil
 }
 
 func randomBytes(byteSize int) ([]byte, error) {
