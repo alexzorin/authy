@@ -168,3 +168,24 @@ func (c Client) QueryAuthenticatorTokens(ctx context.Context, userID uint64, dev
 	return resp, c.doRequest(ctx, http.MethodGet,
 		fmt.Sprintf("users/%d/authenticator_tokens?%s", userID, form.Encode()), nil, &resp)
 }
+
+// QueryAuthenticatorApps fetches the encrypted Authy App tokens for userID,
+// authenticating using the deviceSeed (hex-encoded).
+func (c Client) QueryAuthenticatorApps(ctx context.Context, userID uint64, deviceID uint64, deviceSeed string) (AuthenticatorAppsResponse, error) {
+	codes, err := generateTOTPCodes(deviceSeed, totpDigits, totpTimeStep, false)
+	if err != nil {
+		return AuthenticatorAppsResponse{}, fmt.Errorf("Failed to generate TOTP codes: %v", err)
+	}
+
+	form := url.Values{}
+	form.Set("api_key", apiKey)
+	form.Set("device_id", strconv.FormatUint(deviceID, 10))
+	form.Set("otp1", codes[0])
+	form.Set("otp2", codes[1])
+	form.Set("otp3", codes[2])
+	form.Set("locale", "en-GB")
+
+	var resp AuthenticatorAppsResponse
+	return resp, c.doRequest(ctx, http.MethodPost,
+		fmt.Sprintf("users/%d/devices/%d/apps/sync", userID, deviceID), strings.NewReader(form.Encode()), &resp)
+}

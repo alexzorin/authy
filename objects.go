@@ -3,6 +3,7 @@ package authy
 import (
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base32"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
@@ -193,4 +194,54 @@ func (t AuthenticatorToken) Description() string {
 		return t.Name
 	}
 	return "Token-" + t.UniqueID
+}
+
+// AuthenticatorAppsResponse is the response from:
+// https://api.authy.com/json/users/{User_ID}/devices/{Device_ID}/apps/sync
+type AuthenticatorAppsResponse struct {
+	// Display to user
+	Message string `json:"message"`
+
+	// Active encrypted authenticator apps
+	AuthenticatorApps []AuthenticatorApp `json:"apps"`
+
+	// Recently deleted, but not removed encrypted authenticator apps
+	Deleted []AuthenticatorApp `json:"deleted"`
+
+	// Whether this request succeeded
+	Success bool `json:"success"`
+}
+
+// AuthenticatorApp is embedded in AuthenticatorAppsResponse
+type AuthenticatorApp struct {
+	ID string `json:"_id"`
+
+	// Display name of the token
+	Name string `json:"name"`
+
+	SerialID int `json:"serial_id"`
+
+	Version int `json:"version"`
+
+	AssetsGroup string `json:"assets_group"`
+
+	AuthyID uint64 `json:"authy_id"`
+
+	// The Device Secret Seed (hex-encoded). It is the TOTP
+	// secret that protects the authenticated endpoints.
+	SecretSeed string `json:"secret_seed"`
+
+	// How many digits in the TOTP
+	Digits int `json:"digits"`
+}
+
+// Token produces the base32-encoded TOTP token backing
+// this app. It has a period of 10.
+func (a AuthenticatorApp) Token() (string, error) {
+	decoded, err := hex.DecodeString(a.SecretSeed)
+	if err != nil {
+		return "", err
+	}
+	encoder := base32.StdEncoding.WithPadding(base32.NoPadding)
+	return encoder.EncodeToString(decoded), nil
 }

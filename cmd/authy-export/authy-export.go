@@ -49,6 +49,15 @@ func main() {
 		log.Fatalf("Couldn't create API client: %v", err)
 	}
 
+	// Fetch the apps
+	appsResponse, err := cl.QueryAuthenticatorApps(nil, regr.UserID, regr.DeviceID, regr.Seed)
+	if err != nil {
+		log.Fatalf("Could not fetch authenticator apps: %v", err)
+	}
+	if !appsResponse.Success {
+		log.Fatalf("Failed to fetch authenticator apps: %+v", appsResponse)
+	}
+
 	// Fetch the actual tokens now
 	tokensResponse, err := cl.QueryAuthenticatorTokens(nil, regr.UserID, regr.DeviceID, regr.Seed)
 	if err != nil {
@@ -81,6 +90,23 @@ func main() {
 			Scheme:   "otpauth",
 			Host:     "totp",
 			Path:     tok.Description(),
+			RawQuery: params.Encode(),
+		}
+		fmt.Println(u.String())
+	}
+	for _, app := range appsResponse.AuthenticatorApps {
+		tok, err := app.Token()
+		if err != nil {
+			log.Printf("Failed to decode app %s: %v", app.Name, err)
+		}
+		params := url.Values{}
+		params.Set("secret", tok)
+		params.Set("digits", strconv.Itoa(app.Digits))
+		params.Set("period", "10")
+		u := url.URL{
+			Scheme:   "otpauth",
+			Host:     "totp",
+			Path:     app.Name,
 			RawQuery: params.Encode(),
 		}
 		fmt.Println(u.String())
