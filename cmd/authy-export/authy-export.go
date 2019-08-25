@@ -98,6 +98,7 @@ func main() {
 		tok, err := app.Token()
 		if err != nil {
 			log.Printf("Failed to decode app %s: %v", app.Name, err)
+			continue
 		}
 		params := url.Values{}
 		params.Set("secret", tok)
