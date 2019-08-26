@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	jab "github.com/cloudfoundry-attic/jibber_jabber"
 )
 
 const (
@@ -183,9 +185,13 @@ func (c Client) QueryAuthenticatorApps(ctx context.Context, userID uint64, devic
 	form.Set("otp1", codes[0])
 	form.Set("otp2", codes[1])
 	form.Set("otp3", codes[2])
-	form.Set("locale", "en-GB")
+	language, err := jab.DetectIETF();
+	if err != nil {
+		language = "en-GB";
+	}
+	form.Set("locale", language)
 
 	var resp AuthenticatorAppsResponse
 	return resp, c.doRequest(ctx, http.MethodPost,
-		fmt.Sprintf("users/%d/devices/%d/apps/sync", userID, deviceID), strings.NewReader(form.Encode()), &resp)
+		fmt.Sprintf("users/%d/devices/%d/apps/sync?%s", userID, deviceID, form.Encode()), strings.NewReader(form.Encode()), &resp)
 }
