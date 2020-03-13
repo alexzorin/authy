@@ -16,6 +16,19 @@ Please be careful. You can get your Authy account suspended very easily by using
 ### authy-export
 This program will enrol itself as an additional device on your Authy account and export all of your TOTP tokens in [Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
 
+**Installation**
+
+Of course, `go` must be installed and set up, with `$GOPATH/bin` in your `$PATH`.
+
+Go 1.12 or higher is required. If you have a version lower than 1.12, first install 1.12 by doing.
+
+1. `go get golang.org/dl/go1.12.7`
+2. `go1.12.7 download`
+
+Then, in the following instructions, replace `go` with `go1.12.7`.
+
+Next, install `authy-export` by running `go get github.com/alexzorin/authy/cmd/authy-export`.
+
 **To use it:**
 
 1. Run `authy-export`
