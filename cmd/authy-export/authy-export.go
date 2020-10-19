@@ -68,10 +68,13 @@ func main() {
 	}
 
 	// We'll need the prompt the user to give the decryption password
-	log.Printf("Please provide your Authy TOTP backup password: ")
-	pp, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		log.Fatalf("Failed to read the password: %v", err)
+	pp := []byte(os.Getenv("AUTHY_EXPORT_PASSWORD"))
+	if len(pp) == 0 {
+		log.Printf("Please provide your Authy TOTP backup password: ")
+		pp, err = terminal.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			log.Fatalf("Failed to read the password: %v", err)
+		}
 	}
 
 	// Print out in https://github.com/google/google-authenticator/wiki/Key-Uri-Format format
