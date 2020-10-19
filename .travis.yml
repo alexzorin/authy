@@ -1,6 +1,6 @@
 language: go
 go:
-- 1.12.7
+- 1.15.3
 script:
 - CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o authy-export-linux-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
 - CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -o authy-export-darwin-amd64 -ldflags "-s -w" cmd/authy-export/authy-export.go
@@ -8,7 +8,7 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: Q0kkyw7l+4hZV8VqrtGBngIWy1I/4yMcGNwVHsQsk0NoF+5+SuiFdROuOHS8rDz22qRghiV2POI7EUd5KxzMrL2S8yvEDSiCkKGYuMiqcQQwLU2Jd0YGuIZAAVlXUGjyQL0SSGlGOheNUA0ZhMn62AzDug5OW4ovshSUU+XEtmxP/IGd1/5Md3s/sUG9i8MdEvVtCBfsRWKPUtqMTZjk/xpTGf83CNpBMFwdXefdRn1HAPbmtdiYI1muRnda0NKYVSMNmFZRj1JxCGrRoOMv4FVKZgncRicMlgosWgN8Lnm5nX3xRnfIg6JEfM7NynajpmVFjXdoqp7vftHvfK6dI5qYapoJ/xgB7PiYo9y/GDBeiI0vCmnEPi7HJE7IiWSDsBYtQj7Gr4K+c4SaBT1+RoNWadCmR5Os0f9qTqXlsozmcu/2kBa8R2tnF+IMyaeMBnyjnrvpn+3v7wSEVBE7OD8F9kSyf3nm0m80G/rczfxlNyxAtZHTFfIU2C3ma/JnTwf9PzqiyitJlr1jSAXUES0g9Yv8YAQLhz1GZluAkLe2Be+ePL6HiC6p98qPAHJEnjWc6A175bqI0vqdUJwIpkZhlK6tjiCwxueolw/CcyMiZtfIxBHGXIEejymG5XvLwXKse9zdhpb/xWhUZqV1uGhBdTe+4ilqMQBvnG0djz0=
+    secure: Kf+oU4+c52+xF6L00TxMbhJvmzY6Xhb53OgOrF9FU3kISuQogBpPoMKQbUIaTwNAmHzN7+xiF8zXRSDPdQTJ6/qGmh2tKV1zMqSuR5+8Hrp0VOiNFrUmIFojczO774x5t5WQccSCXrlVVNFchojWaWnM1/a7IEgk9IRd0OuYApuBXdUu0etC/JPA0YudHsKXlxqnET31Pzk4JbSZOmMIbWCawC7ZexFuw/W9Y4Wi0SHlD8v7bTYI1NvhlrUavWUheukSsEF5xSrkP+9sp0j6rI2mTChT4l4Lhfz3ibTdxDy/HFbiGQpuYaSPyo71O6/JMLN0Krtks9UA9Psw2DgHZMoxAaCXIwtOLypPJ+63zDo+Augzu0cL3CwMt6A8cWlyXovsVG4q8d158VKSW1sctvhafYm4VH6oYpCUyNFsz/UxKnF0nHgiB7HekdgvFLwqLB+NKIGmWu3Du4dp3rlPxem966hgNUWyW2AR5hfGtcEY9CZ6BMe6Yl859e+xoqgHIC9ub1vmtWjFHn5PXuZvo2CUMurlWWJpW9GnvlG7YgVq+oRb0+TSPxXQS2XwoyR87lReyTa6zQQ20t0l7zaIe/13fkZu0V4OsT8z6+46CPhQiUIlAbvTsZ8l/Q8K38QmoMtH71+TfJDH3Q6NTWm5a98iuADy67H9QHR6x0Hg+T8=
   file:
     - authy-export-linux-amd64
     - authy-export-darwin-amd64
