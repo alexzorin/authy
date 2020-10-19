@@ -50,6 +50,10 @@ cat tokens | while IFS= read -r line; do
 done
 ```
 
+**Batch support**
+
+When environment variable named `AUTHY_EXPORT_PASSWORD` exists, `authy-export` does not ask for a password and uses the variable instead. Use with care!
+
 ## LICENSE
 
 Copyright Alex Zorin 2019
