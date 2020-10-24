@@ -50,6 +50,21 @@ cat tokens | while IFS= read -r line; do
 done
 ```
 
+**"My Twitch (or other site) token is different to the one I see in the Authy app?"**
+
+This is expected, depending on what the site is. 
+
+In Authy, there are two types of secrets:
+
+- **Tokens**: You sign up to a website, you scan a QR code, and you have TOTP up and running. You can export that secret to other TOTP apps and the code will match.
+- **Apps**: The website has exported their authentication flow to Authy's proprietary service. Authy assigns a different TOTP secret for every device where you install Authy. Each device will generate different codes, but they will all work. If you deregister any device, its TOTP secret gets revoked.
+
+Twitch (and a handful of other sites) are the latter: Authy Apps.
+
+Now, `authy-export` registers itself as a device on your Authy account. Per the explanation above, that means it is assigned a different TOTP secret for any site which is an Authy App, which means it will generate a different code. The code will work as long as you don't deregister the `authy-export` device from your Authy account.
+
+This is unfortunate, but the fact is: you cannot delete your Authy account if you want to keep using TOTP-based authentication with Twitch. If you do, all the TOTP secrets will be revoked, and you will locked out. It happened to me, and Twitch support chose to not help me out ^_^.
+
 **Batch support**
 
 When environment variable named `AUTHY_EXPORT_PASSWORD` exists, `authy-export` does not ask for a password and uses the variable instead. Use with care!
