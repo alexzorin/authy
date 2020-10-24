@@ -56,14 +56,14 @@ This is expected, depending on what the site is.
 
 In Authy, there are two types of secrets:
 
-- **Tokens**: You sign up to a website, you scan a QR code, and you have TOTP up and running. You can export that secret to other TOTP apps and the code will match.
-- **Apps**: The website has exported their authentication flow to Authy's proprietary service. Authy assigns a different TOTP secret for every device where you install Authy. Each device will generate different codes, but they will all work. If you deregister any device, its TOTP secret gets revoked.
+- **Tokens**: You sign up to a website, the website generates a TOTP secret, and you scan it via a QR code (in *any* app, not necessarily Authy). You can export that secret to other TOTP apps and the code will match.
+- **Apps**: The website has exported their TOTP flow to Authy's proprietary service, which requires you to use the Authy app. For sites like Twitch, Authy assigns a unique TOTP secret for every device you use the Authy app on. Each device will produce different 7-digit codes, but they will all work. If you deregister any device from your Authy account, that device's TOTP secrets will be revoked and its 7-digit codes will no longer work.
 
 Twitch (and a handful of other sites) are the latter: Authy Apps.
 
-Now, `authy-export` registers itself as a device on your Authy account. Per the explanation above, that means it is assigned a different TOTP secret for any site which is an Authy App, which means it will generate a different code. The code will work as long as you don't deregister the `authy-export` device from your Authy account.
+Now, `authy-export` registers itself as a device on your Authy account. Per the explanation above, that means it is assigned a unique TOTP secret for sites like Twitch, which means it will generate different 7-digit codes to your primary Authy device. These codes will work as long as you don't deregister the `authy-export` device from your Authy account.
 
-This is unfortunate, but the fact is: you cannot delete your Authy account if you want to keep using TOTP-based authentication with Twitch. If you do, all the TOTP secrets will be revoked, and you will locked out. It happened to me, and Twitch support chose to not help me out ^_^.
+This is unfortunate, but the fact is: you cannot fully delete your Authy account if you want to keep using TOTP-based authentication with Twitch. If you do, all of the TOTP secrets will be revoked, and you will locked out of Twitch. It happened to me, and Twitch support chose to not help me out ^_^.
 
 **Batch support**
 
