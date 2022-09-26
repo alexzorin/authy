@@ -18,12 +18,12 @@ This program will enrol itself as an additional device on your Authy account and
 
 **Installation**
 
-Pre-built binaries are available from the [releases page](https://github.com/alexzorin/authy/releases).
+Pre-built binaries are available from the [releases page](https://github.com/alexzorin/authy/releases). (Windows binaries have been removed because of continual false positive virus complaints, sorry).
 
 Alternatively, it can be compiled from source, which requires [Go 1.12 or newer](https://golang.org/doc/install):
 
 ```shell
-go get github.com/alexzorin/authy/cmd/authy-export
+go install github.com/alexzorin/authy/cmd/authy-export@latest
 ```
 
 **To use it:**
