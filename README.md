@@ -14,7 +14,7 @@ Please be careful. You can get your Authy account suspended very easily by using
 ## Applications
 
 ### authy-export
-This program will enrol itself as an additional device on your Authy account and export all of your TOTP tokens in [Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
+This program will enroll itself as an additional device on your Authy account and export all of your TOTP tokens in [Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
 
 **Installation**
 
