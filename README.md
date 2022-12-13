@@ -23,7 +23,7 @@ Pre-built binaries are available from the [releases page](https://github.com/ale
 Alternatively, it can be compiled from source, which requires [Go 1.12 or newer](https://golang.org/doc/install):
 
 ```shell
-go install github.com/alexzorin/authy/cmd/authy-export@latest
+go install github.com/alexzorin/authy/...@latest
 ```
 
 **To use it:**
