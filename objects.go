@@ -245,3 +245,10 @@ func (a AuthenticatorApp) Token() (string, error) {
 	encoder := base32.StdEncoding.WithPadding(base32.NoPadding)
 	return encoder.EncodeToString(decoded), nil
 }
+
+type AuthenticatorResponse struct {
+	Tokens AuthenticatorTokensResponse `json:"tokens"`
+
+	Apps AuthenticatorAppsResponse `json:"apps"`
+}
+

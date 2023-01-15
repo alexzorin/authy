@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"flag"
 
 	"github.com/alexzorin/authy"
 	"golang.org/x/crypto/ssh/terminal"
@@ -27,93 +28,126 @@ type deviceRegistration struct {
 }
 
 func main() {
-	// If we don't already have a registered device, prompt the user for one
-	regr, err := loadExistingDeviceRegistration()
-	if err == nil {
-		log.Println("Found existing device registration")
-	} else if os.IsNotExist(err) {
-		log.Println("No existing device registration found, will perform registration now")
-		regr, err = newInteractiveDeviceRegistration()
+	savePtr := flag.String("save", "", "Save encrypted tokens and apps to this json file")
+	loadPtr := flag.String("load", "", "Load tokens from this json file instead of the server")
+	flag.Parse()
+
+	var resp authy.AuthenticatorResponse
+	if *loadPtr != "" {
+		// Get tokens from the json file
+		f, err := os.Open(*loadPtr)
 		if err != nil {
-			log.Fatalf("Device registration failed: %v", err)
+			log.Fatalf("Failed to read the file: %v", err)
 		}
-	} else if err != nil {
-		log.Fatalf("Could not check for existing device registration: %v", err)
-	}
+		defer f.Close()
 
-	// By now we have a valid user and device ID
-	log.Printf("Authy User ID %d, Device ID %d", regr.UserID, regr.DeviceID)
+		json.NewDecoder(f).Decode(&resp)
+	} else {
+		// Get tokens from the server
+		// If we don't already have a registered device, prompt the user for one
+		regr, err := loadExistingDeviceRegistration()
+		if err == nil {
+			log.Println("Found existing device registration")
+		} else if os.IsNotExist(err) {
+			log.Println("No existing device registration found, will perform registration now")
+			regr, err = newInteractiveDeviceRegistration()
+			if err != nil {
+				log.Fatalf("Device registration failed: %v", err)
+			}
+		} else if err != nil {
+			log.Fatalf("Could not check for existing device registration: %v", err)
+		}
 
-	cl, err := authy.NewClient()
-	if err != nil {
-		log.Fatalf("Couldn't create API client: %v", err)
-	}
+		// By now we have a valid user and device ID
+		log.Printf("Authy User ID %d, Device ID %d", regr.UserID, regr.DeviceID)
 
-	// Fetch the apps
-	appsResponse, err := cl.QueryAuthenticatorApps(nil, regr.UserID, regr.DeviceID, regr.Seed)
-	if err != nil {
-		log.Fatalf("Could not fetch authenticator apps: %v", err)
-	}
-	if !appsResponse.Success {
-		log.Fatalf("Failed to fetch authenticator apps: %+v", appsResponse)
-	}
-
-	// Fetch the actual tokens now
-	tokensResponse, err := cl.QueryAuthenticatorTokens(nil, regr.UserID, regr.DeviceID, regr.Seed)
-	if err != nil {
-		log.Fatalf("Could not fetch authenticator tokens: %v", err)
-	}
-	if !tokensResponse.Success {
-		log.Fatalf("Failed to fetch authenticator tokens: %+v", tokensResponse)
-	}
-
-	// We'll need the prompt the user to give the decryption password
-	pp := []byte(os.Getenv("AUTHY_EXPORT_PASSWORD"))
-	if len(pp) == 0 {
-		log.Printf("Please provide your Authy TOTP backup password: ")
-		pp, err = terminal.ReadPassword(int(os.Stdin.Fd()))
+		cl, err := authy.NewClient()
 		if err != nil {
-			log.Fatalf("Failed to read the password: %v", err)
+			log.Fatalf("Couldn't create API client: %v", err)
+		}
+
+		// Fetch the apps
+		resp.Apps, err = cl.QueryAuthenticatorApps(nil, regr.UserID, regr.DeviceID, regr.Seed)
+		if err != nil {
+			log.Fatalf("Could not fetch authenticator apps: %v", err)
+		}
+		if !resp.Apps.Success {
+			log.Fatalf("Failed to fetch authenticator apps: %+v", resp.Apps)
+		}
+
+		// Fetch the actual tokens now
+		resp.Tokens, err = cl.QueryAuthenticatorTokens(nil, regr.UserID, regr.DeviceID, regr.Seed)
+		if err != nil {
+			log.Fatalf("Could not fetch authenticator tokens: %v", err)
+		}
+		if !resp.Tokens.Success {
+			log.Fatalf("Failed to fetch authenticator tokens: %+v", resp.Tokens)
 		}
 	}
 
-	// Print out in https://github.com/google/google-authenticator/wiki/Key-Uri-Format format
-	log.Println("Here are your authenticator tokens:\n")
-	for _, tok := range tokensResponse.AuthenticatorTokens {
-		decrypted, err := tok.Decrypt(string(pp))
+	if *savePtr != "" {
+		// Save encrypted tokens to json file
+		f, err := os.OpenFile(*savePtr, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
 		if err != nil {
-			log.Printf("Failed to decrypt token %s: %v", tok.Description(), err)
-			continue
+			log.Fatalf("Creating backup file failed: %v", err)
+		}
+		defer f.Close()
+		enc := json.NewEncoder(f)
+		enc.SetIndent("", "\t")
+		if err := enc.Encode(resp); err != nil {
+			log.Fatalf("Encoding backup file failed: %v", err)
+		}
+	} else {
+		// Display decrypted tokens to the terminal
+		// We'll need the prompt the user to give the decryption password
+		pp := []byte(os.Getenv("AUTHY_EXPORT_PASSWORD"))
+		if len(pp) == 0 {
+			log.Printf("Please provide your Authy TOTP backup password: ")
+			var err error
+			pp, err = terminal.ReadPassword(int(os.Stdin.Fd()))
+			if err != nil {
+				log.Fatalf("Failed to read the password: %v", err)
+			}
 		}
 
-		params := url.Values{}
-		params.Set("secret", decrypted)
-		params.Set("digits", strconv.Itoa(tok.Digits))
-		u := url.URL{
-			Scheme:   "otpauth",
-			Host:     "totp",
-			Path:     tok.Description(),
-			RawQuery: params.Encode(),
+		// Print out in https://github.com/google/google-authenticator/wiki/Key-Uri-Format format
+		log.Println("Here are your authenticator tokens:\n")
+		for _, tok := range resp.Tokens.AuthenticatorTokens {
+			decrypted, err := tok.Decrypt(string(pp))
+			if err != nil {
+				log.Printf("Failed to decrypt token %s: %v", tok.Description(), err)
+				continue
+			}
+
+			params := url.Values{}
+			params.Set("secret", decrypted)
+			params.Set("digits", strconv.Itoa(tok.Digits))
+			u := url.URL{
+				Scheme:   "otpauth",
+				Host:     "totp",
+				Path:     tok.Description(),
+				RawQuery: params.Encode(),
+			}
+			fmt.Println(u.String())
 		}
-		fmt.Println(u.String())
-	}
-	for _, app := range appsResponse.AuthenticatorApps {
-		tok, err := app.Token()
-		if err != nil {
-			log.Printf("Failed to decode app %s: %v", app.Name, err)
-			continue
+		for _, app := range resp.Apps.AuthenticatorApps {
+			tok, err := app.Token()
+			if err != nil {
+				log.Printf("Failed to decode app %s: %v", app.Name, err)
+				continue
+			}
+			params := url.Values{}
+			params.Set("secret", tok)
+			params.Set("digits", strconv.Itoa(app.Digits))
+			params.Set("period", "10")
+			u := url.URL{
+				Scheme:   "otpauth",
+				Host:     "totp",
+				Path:     app.Name,
+				RawQuery: params.Encode(),
+			}
+			fmt.Println(u.String())
 		}
-		params := url.Values{}
-		params.Set("secret", tok)
-		params.Set("digits", strconv.Itoa(app.Digits))
-		params.Set("period", "10")
-		u := url.URL{
-			Scheme:   "otpauth",
-			Host:     "totp",
-			Path:     app.Name,
-			RawQuery: params.Encode(),
-		}
-		fmt.Println(u.String())
 	}
 }
 

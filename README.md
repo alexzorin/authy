@@ -16,6 +16,8 @@ Please be careful. You can get your Authy account suspended very easily by using
 ### authy-export
 This program will enrol itself as an additional device on your Authy account and export all of your TOTP tokens in [Key URI Format](https://github.com/google/google-authenticator/wiki/Key-Uri-Format).
 
+It is also able to save the TOTP database in a JSON file encrypted with your Authy backup password, which can be used for backup purposes, and to read it back in order to decrypt it.
+
 **Installation**
 
 Pre-built binaries are available from the [releases page](https://github.com/alexzorin/authy/releases). (Windows binaries have been removed because of continual false positive virus complaints, sorry).
@@ -34,6 +36,7 @@ go install github.com/alexzorin/authy/...@latest
 4. If the device registration is successful, the program will save its authentication credential (a random value) to `$HOME/authy-go.json` for further uses. **Make sure to delete this file and de-register the device after you're finished.**
 5. If the program is able to fetch your TOTP encrypted database, it will prompt you for your Authy backup password. This is required to decrypt the TOTP secrets for the next step. 
 6. The program will dump all of your TOTP tokens in URI format, which you can use to import to other applications.
+7. Alternatively, you can save the TOTP encrypted database to a file with the `--save` option, and reload it later with the `--load` option in order to decrypt it and dump the tokens.
 
 If you [notice any missing TOTP tokens](https://github.com/alexzorin/authy/issues/1#issuecomment-516187701), please try toggling "Authenticator Backups" in your Authy settings, to force your backup to be resynchronized.
 
