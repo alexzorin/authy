@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"errors"
+	"flag"
 	"fmt"
 	"log"
 	"net/url"
@@ -12,7 +13,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"flag"
 
 	"github.com/alexzorin/authy"
 	"golang.org/x/crypto/ssh/terminal"
@@ -28,11 +28,14 @@ type deviceRegistration struct {
 }
 
 func main() {
-	savePtr := flag.String("save", "", "Save encrypted tokens and apps to this json file")
-	loadPtr := flag.String("load", "", "Load tokens from this json file instead of the server")
+	savePtr := flag.String("save", "", "Save encrypted tokens to this JSON file")
+	loadPtr := flag.String("load", "", "Load tokens from this JSON file instead of the server")
 	flag.Parse()
 
-	var resp authy.AuthenticatorResponse
+	var resp struct {
+		Tokens authy.AuthenticatorTokensResponse `json:"tokens"`
+		Apps   authy.AuthenticatorAppsResponse   `json:"apps"`
+	}
 	if *loadPtr != "" {
 		// Get tokens from the json file
 		f, err := os.Open(*loadPtr)
@@ -41,7 +44,10 @@ func main() {
 		}
 		defer f.Close()
 
-		json.NewDecoder(f).Decode(&resp)
+		err = json.NewDecoder(f).Decode(&resp)
+		if err != nil {
+			log.Fatalf("Failed to decode the file: %v", err)
+		}
 	} else {
 		// Get tokens from the server
 		// If we don't already have a registered device, prompt the user for one
