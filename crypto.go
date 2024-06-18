@@ -24,7 +24,7 @@ import (
 const (
 	totpTimeStep = 10
 	totpDigits   = 7
-	kdfRounds    = 1e3
+	kdfRounds    = 1e5
 	kdfKeyLen    = 256
 )
 
