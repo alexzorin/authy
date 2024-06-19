@@ -154,6 +154,7 @@ type AuthenticatorToken struct {
 	// The encrypted TOTP seed
 	EncryptedSeed string `json:"encrypted_seed"`
 
+	// The number of rounds for password-based key derivation
 	KDFRounds int `json:"key_derivation_iterations"`
 
 	// User-nominated name for the token
