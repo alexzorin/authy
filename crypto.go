@@ -24,7 +24,6 @@ import (
 const (
 	totpTimeStep = 10
 	totpDigits   = 7
-	kdfRounds    = 1e3
 	kdfKeyLen    = 256
 )
 
@@ -86,7 +85,7 @@ func generateTOTP(secret []byte, t time.Time, digits int, timeStep int64) (strin
 	return fmt.Sprintf(f, mod), nil
 }
 
-func decryptToken(encryptedSeedB64, salt, passphrase string) (string, error) {
+func decryptToken(kdfRounds int, encryptedSeedB64, salt, passphrase string) (string, error) {
 	encryptedSeed, err := base64.StdEncoding.DecodeString(encryptedSeedB64)
 	if err != nil {
 		return "", fmt.Errorf("Error decoding encrypted seed: %v", err)

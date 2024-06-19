@@ -154,6 +154,8 @@ type AuthenticatorToken struct {
 	// The encrypted TOTP seed
 	EncryptedSeed string `json:"encrypted_seed"`
 
+	KDFRounds int `json:"key_derivation_iterations"`
+
 	// User-nominated name for the token
 	Name string `json:"name"`
 
@@ -173,7 +175,7 @@ type AuthenticatorToken struct {
 // Decrypt returns the base32-encoded seed for this TOTP token, decrypted
 // by passphrase.
 func (t AuthenticatorToken) Decrypt(passphrase string) (string, error) {
-	secret, err := decryptToken(t.EncryptedSeed, t.Salt, passphrase)
+	secret, err := decryptToken(t.KDFRounds, t.EncryptedSeed, t.Salt, passphrase)
 	if err != nil {
 		return "", err
 	}
