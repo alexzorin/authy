@@ -1,5 +1,9 @@
 # authy
 
+> [!CAUTION]
+> As of July 2024, this project is abandoned and no longer functional. Owing to [this incident](https://www.macrumors.com/2024/07/05/authy-app-hack-exposes-phone-numbers/), Authy added some attestation requirements to their API [which affects this project](https://github.com/alexzorin/authy/issues/33). Since the desktop app and browser extensions are deprecated and I have no personal motivation to reverse engineer their mobile apps, I am archiving this project. Anybody who is interested in becoming the maintainer is free to fork this project and I can redirect this repository to them.
+
+-----
 
 [![GoDoc](https://godoc.org/github.com/alexzorin/authy?status.svg)](https://godoc.org/github.com/alexzorin/authy)
 
